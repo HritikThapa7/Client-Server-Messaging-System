@@ -13,12 +13,12 @@ def server_program():
 
     public_key = conn.recv(2048)                    #receiving public key from client
     
-    aes_key = Random.new().read(AES.block_size)     #generating an aes key
+    aes_key = Random.new().read(AES.block_size)     #generating an aes key or a session key
     aes = AESCrypt(aes_key)                         #creating an AES object with aes key for message encryption
 
     rsa = RSACrypt(public_key)                      #creating an RSA object with Public key of client
-    session_key = rsa.encrypt(aes_key)              #encrypting aes key with public key of client
-    conn.send(session_key)
+    enc_session_key = rsa.encrypt_sesskey(aes_key)              #encrypting session key with public key of client
+    conn.send(enc_session_key)
 
     while True:
         encrypted_message = conn.recv(4096)         #receiving encrypted msg from client
