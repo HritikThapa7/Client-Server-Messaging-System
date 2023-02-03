@@ -2,6 +2,7 @@ import socket
 from CryptoClass import AESCrypt, RSACrypt
 from Crypto import Random
 from Crypto.Cipher import AES
+import re
 
 def server_program():
     server_socket = socket.socket()
@@ -25,10 +26,16 @@ def server_program():
         if not encrypted_message:
             break
         decrypted_message = aes.decrypt(encrypted_message)
-        print("Client: "+str(decrypted_message))
-        data = input("Server -> ")
-        en_msg = aes.encrypt(data)
-        conn.send(en_msg)
+        decrypted_message = decrypted_message  # convert decrypted message to string
+        if re.match("^[a-zA-Z0-9.,!?]+$", decrypted_message):  # check if decrypted message contains only allowed characters
+            print("Client: "+str(decrypted_message))
+            data = input("Server -> ")
+            if re.match("^[a-zA-Z0-9.,!?]+$", data):  # check if data contains only allowed characters
+                en_msg = aes.encrypt(data)
+                conn.send(en_msg)
+        else:
+            print("Invalid message received. Only alphanumeric characters and .,!? are allowed.")
+            break
     conn.close()
 
 if __name__ == "__main__":
